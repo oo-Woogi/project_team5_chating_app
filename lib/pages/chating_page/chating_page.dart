@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_team5_chating_app/pages/chating_page/widgets/chat_button.dart';
 
 class ChatingPage extends StatelessWidget {
   const ChatingPage({super.key});
@@ -74,6 +75,12 @@ class ChatingPage extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+          const Spacer(),
+          ChatButton(
+            onSendMessage: (text) {
+              print('전송된 메시지: $text');
+            },
           ),
         ],
       ),
