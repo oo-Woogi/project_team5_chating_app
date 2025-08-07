@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
+
 import 'package:project_team5_chating_app/pages/welcome_page/splash_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
+
 
 void main() {
   runApp(const MyApp());
