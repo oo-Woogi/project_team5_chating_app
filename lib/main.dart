@@ -16,7 +16,6 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: SearchingPage(),
     );
   }
 }
