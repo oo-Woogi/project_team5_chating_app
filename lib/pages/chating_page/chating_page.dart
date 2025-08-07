@@ -28,20 +28,15 @@ class ChatingPage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon : Image.asset(
-              'assets/images/Frame.png',
-              width: 24,
-              height: 24,
-            ),
-            onPressed: () {
-            },
+            icon: Image.asset('assets/images/Frame.png', width: 24, height: 24),
+            onPressed: () {},
           ),
         ],
       ),
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 10),
             child: Container(
               height: 70,
               width: double.infinity,
@@ -62,11 +57,24 @@ class ChatingPage extends StatelessWidget {
               ),
             ),
           ),
-          const Expanded(
-            child: Center(
-              child: Text('채팅 페이지 본문 영역'),
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD9D9D9),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                '2025.08.06(수)',
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 13,
+                  color: Color(0xff333333),
+                ),
+              ),
             ),
-            ),
+          ),
         ],
       ),
     );
