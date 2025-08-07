@@ -12,7 +12,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-          fontFamily: 'Pretendard', scaffoldBackgroundColor: Colors.white),
+        fontFamily: 'Pretendard',
+        scaffoldBackgroundColor: Colors.white,
+      ),
       home: WelcomePage(),
     );
   }
