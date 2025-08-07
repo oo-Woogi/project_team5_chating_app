@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         fontFamily: 'Pretendard',
-        scaffoldBackgroundColor: const Color(0xFFD9D9D9),
+        scaffoldBackgroundColor: const Color(0xFFF4F4F4),
       ),
       home: ChatingPage(), // ChatingPage 구상 중이여서 home에 설정 추후 WelcomePage로 변경 예정
     );
