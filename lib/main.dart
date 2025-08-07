@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_team5_chating_app/pages/chating_page/chating_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
 
 void main() {
@@ -13,9 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         fontFamily: 'Pretendard',
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: const Color(0xFFD9D9D9),
       ),
-      home: WelcomePage(),
+      home: ChatingPage(), // ChatingPage 구상 중이여서 home에 설정 추후 WelcomePage로 변경 예정
     );
   }
 }
