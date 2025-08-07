@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_team5_chating_app/pages/welcome_page/splash_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
 
 void main() {
@@ -11,11 +12,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Tokka App',
       theme: ThemeData(
         fontFamily: 'Pretendard',
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: WelcomePage(),
+      home: SplashPage(),
     );
   }
 }
