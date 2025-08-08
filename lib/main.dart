@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_team5_chating_app/pages/chating_page/chating_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/splash_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         scaffoldBackgroundColor: const Color(0xFFF4F4F4),
       ),
-      home: SplashPage(),
+      home: ChatingPage(),
     );
   }
 }
