@@ -7,6 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.project_team5_chating_app"
+
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973" // NDK 버전 업데이트
 
