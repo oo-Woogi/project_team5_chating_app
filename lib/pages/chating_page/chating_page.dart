@@ -1,39 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:project_team5_chating_app/pages/chating_page/widgets/chat_button.dart';
+import 'package:project_team5_chating_app/widgets/appbar.dart';
 
 class ChatingPage extends StatelessWidget {
   const ChatingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    //앱바에서 사용할 actions
+    Widget actions = IconButton(
+          icon: Image.asset('assets/images/Frame.png', width: 24, height: 24),
+          onPressed: () {},
+    );
+    
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
-          color: Colors.black,
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text(
-          '채팅',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w600, // 글씨체 Pretendart SemiBold 적용
-            color: Colors.black,
-            fontSize: 20,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Image.asset('assets/images/Frame.png', width: 24, height: 24),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      appBar: MyAppbar(title: '채팅', actions: actions),
       body: Column(
         children: [
           Padding(
@@ -87,3 +69,4 @@ class ChatingPage extends StatelessWidget {
     );
   }
 }
+
