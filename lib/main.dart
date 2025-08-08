@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         scaffoldBackgroundColor: const Color(0xFFF4F4F4),
       ),
-      home: SplashPage(),
+      home: ChatingPage(),
     );
   }
 }
