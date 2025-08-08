@@ -1,14 +1,14 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
     namespace = "com.example.project_team5_chating_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973" // NDK 버전 업데이트
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -20,25 +20,38 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.project_team5_chating_app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 23 // 최소 SDK 버전 23으로 업데이트
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    // 선택: 릴리스 빌드용 서명 설정
+    signingConfigs {
+        create("release") {
+            // TODO: 실제 키스토어 정보로 대체
+            storeFile = file("path/to/keystore.jks")
+            storePassword = "your-store-password"
+            keyAlias = "your-key-alias"
+            keyPassword = "your-key-password"
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+// 선택: Firebase 종속성 추가
+dependencies {
+    // 예: implementation("com.google.firebase:firebase-analytics-ktx:21.3.0")
 }
