@@ -2,7 +2,7 @@
 
 // 2. 뷰모델 만들기
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project_team5_chating_app/pages/welcome_page/data/repository/vworld_repository.dart';
+import 'package:project_team5_chating_app/data/repository/vworld_repository.dart';
 
 class AddressViewModel extends AutoDisposeNotifier<List<String>> {
   @override
@@ -12,14 +12,10 @@ class AddressViewModel extends AutoDisposeNotifier<List<String>> {
 
   final vworldRepository = VworldRepository();
 
-  void searchByName(String query) async {
-    final result = await vworldRepository.findByName(query);
+Future<List> searchByLocation(double lat, double lng) async {
+    final result = await vworldRepository.findByLatLng(lat: lat, lng: lng);
     state = result;
-  }
-
-  void searchByLocation(double lat, double lng) async {
-    final result = await vworldRepository.findByLatLng(lat, lng);
-    state = result;
+    return result;
   }
 }
 
