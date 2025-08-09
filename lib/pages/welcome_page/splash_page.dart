@@ -9,16 +9,16 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  @override
-  void initState() {
-    super.initState();
-    Timer(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => WelcomePage()),
-      );
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   Timer(const Duration(seconds: 2), () {
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(builder: (_) => WelcomePage()),
+  //     );
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class _SplashPageState extends State<SplashPage> {
               width: 110,
               height: 110,
               decoration: const BoxDecoration(
-                color: Color(0xFFF7E8E1),
+                color: Color(0xFFFFEAE3),
                 shape: BoxShape.circle,
               ),
             ),
@@ -45,7 +45,7 @@ class _SplashPageState extends State<SplashPage> {
               width: 230,
               height: 230,
               decoration: const BoxDecoration(
-                color: Color(0xFFF7E8E1),
+                color: Color(0xFFFFEAE3),
                 shape: BoxShape.circle,
               ),
             ),
@@ -57,7 +57,7 @@ class _SplashPageState extends State<SplashPage> {
               width: 350,
               height: 350,
               decoration: const BoxDecoration(
-                color: Color(0xFFF7E8E1),
+                color: Color(0xFFFFEAE3),
                 shape: BoxShape.circle,
               ),
             ),
@@ -69,7 +69,7 @@ class _SplashPageState extends State<SplashPage> {
               width: 140,
               height: 140,
               decoration: const BoxDecoration(
-                color: Color(0xFFF7E8E1),
+                color: Color(0xFFFFEAE3),
                 shape: BoxShape.circle,
               ),
             ),

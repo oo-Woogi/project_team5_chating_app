@@ -1,17 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/address_view_model.dart';
+import 'core/geolocator_helper.dart';
+import 'data/repository/vworld_repository.dart';
 
-class WelcomePage extends StatefulWidget {
+class WelcomePage extends ConsumerStatefulWidget {
   const WelcomePage({super.key});
 
   @override
-  State<WelcomePage> createState() => _WelcomePageState();
+  _WelcomePageState createState() => _WelcomePageState();
 }
 
-class _WelcomePageState extends State<WelcomePage> {
+class _WelcomePageState extends ConsumerState<WelcomePage> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController(text: '수현');
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLocationAndAddress();
+  }
+
+  Future<void> _fetchLocationAndAddress() async {
+    final position = await GeolocatorHelper.getPosition();
+    if (position != null) {
+      ref
+          .read(addressViewModel.notifier)
+          .searchByLocation(
+            position.latitude,
+            position.longitude,
+          );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Watch for changes in the addressViewModel state.
+    final addressState = ref.watch(addressViewModel);
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -36,7 +62,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   ),
                 ),
 
-                // 사진
+                // Picture
                 const SizedBox(height: 40),
                 Center(
                   child: Stack(
@@ -71,7 +97,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   ),
                 ),
 
-                // 폼
+                // Form
                 const SizedBox(height: 35),
                 const Text(
                   'Full Name',
@@ -79,7 +105,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  initialValue: '수현',
+                  controller: _nameController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '이름을 입력해주세요.';
@@ -110,7 +136,6 @@ class _WelcomePageState extends State<WelcomePage> {
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      // 포커스 시 테두리
                       borderSide: BorderSide(
                         color: Color(0x66333333),
                         width: 2.0,
@@ -163,7 +188,6 @@ class _WelcomePageState extends State<WelcomePage> {
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      // 포커스 시 테두리
                       borderSide: BorderSide(
                         color: Color(0x66333333),
                         width: 2.0,
@@ -177,14 +201,26 @@ class _WelcomePageState extends State<WelcomePage> {
                   ),
                 ),
 
-                // 시작하기 버튼
+                // Start Button
                 const SizedBox(height: 40),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      // 1. geolocator 클래스 이용해서 위도 경도 가지고오기
+                      final position = await GeolocatorHelper.getPosition();
+                      if (position != null) {
+                        // 2. 가지고 온 위도 경도를 address_view_model을 이용해서 주소로 변환
+                        final viewModel = ref.read(addressViewModel.notifier);
+                        viewModel.searchByLocation(
+                          position.latitude,
+                          position.longitude,
+                        );
+                      }
+
                       ScaffoldMessenger.of(
                         context,
                       ).showSnackBar(const SnackBar(content: Text('로그인 성공!')));
+                      // You can add navigation to the next page here.
                     }
                   },
                   style: ElevatedButton.styleFrom(
