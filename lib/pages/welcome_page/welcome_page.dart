@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_team5_chating_app/pages/chating_page/chating_page.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -9,6 +10,16 @@ class WelcomePage extends StatefulWidget {
 
 class _WelcomePageState extends State<WelcomePage> {
   final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _aboutController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _aboutController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,14 +90,15 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  initialValue: '수현',
+                  controller: _nameController,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
+                    if (value == null || value.trim().isEmpty) {
                       return '이름을 입력해주세요.';
                     }
                     return null;
                   },
                   decoration: const InputDecoration(
+                    hintText: '이름을 입력해주세요',
                     filled: false,
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -131,15 +143,16 @@ class _WelcomePageState extends State<WelcomePage> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  initialValue: '여기계신 분들은 쉬우셨나봐요~',
+                  controller: _aboutController,
                   maxLines: 3,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
+                    if (value == null || value.trim().isEmpty) {
                       return '자기소개를 작성해주세요.';
                     }
                     return null;
                   },
                   decoration: const InputDecoration(
+                    hintText: '자기소개를 작성해주세요',
                     filled: false,
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -182,9 +195,19 @@ class _WelcomePageState extends State<WelcomePage> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(
+                      FocusScope.of(context).unfocus();
+                      final name = _nameController.text.trim();
+
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(const SnackBar(content: Text('로그인 성공!')));
+
+                      Navigator.pushNamed(
                         context,
-                      ).showSnackBar(const SnackBar(content: Text('로그인 성공!')));
+                        '/search',
+                        arguments: {
+                          'userName': name,
+                        },
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
