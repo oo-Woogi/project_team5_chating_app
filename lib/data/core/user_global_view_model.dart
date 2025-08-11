@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project_team5_chating_app/data/repository/user_repository.dart';
 
@@ -38,11 +40,12 @@ class UserGlobalViewModel extends StateNotifier<UserGlobalState> {
 
   UserGlobalViewModel(this._userRepository) : super(UserGlobalState.initial());
 
-  Future<bool> join(String userName, String address, String aboutMe) async {
+  Future<bool> join(String userName, String address, String aboutMe, [File? imageFile]) async {
     final userId = await _userRepository.insert(
       name: userName,
       aboutMe: aboutMe,
       position: address,
+      imageFile: imageFile
     );
 
     if (userId != null) {
@@ -52,6 +55,7 @@ class UserGlobalViewModel extends StateNotifier<UserGlobalState> {
         userName: userName,
         address: address,
         aboutMe: aboutMe,
+        
       );
       return true;
     } else {

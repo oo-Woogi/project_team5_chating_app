@@ -86,6 +86,7 @@ class FriendBottomSheet extends ConsumerWidget {
 class _FriendItem extends StatelessWidget {
   final User user;
   const _FriendItem({required this.user});
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -104,28 +105,40 @@ class _FriendItem extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              // :전구: user 객체의 데이터를 사용합니다.
-              // user.image가 정확한 필드명인지 확인해 주세요.
-              // Image.asset(user.image),
+              user.imgpath?.isNotEmpty == true
+                  ? ClipOval(
+                      child: Image.network(
+                        user.imgpath!,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.person, size: 40),
+                    ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // :전구: user 객체의 데이터를 사용합니다.
                     Text(
                       user.name,
                       style: const TextStyle(
-                        fontFamily: 'Pretendard-semiBold',
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
                     Text(
-                      user.position, // user.position이 정확한 필드명인지 확인해 주세요.
+                      user.position,
                       style: const TextStyle(
-                        fontFamily: 'Pretendard-semiBold',
                         color: Color(0xFF777777),
                       ),
                     ),
