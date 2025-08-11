@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_team5_chating_app/data/core/user_global_view_model.dart';
 import 'package:project_team5_chating_app/model/user.dart';
 import 'package:project_team5_chating_app/pages/searching_page/searching_veiw_model.dart';
 
@@ -9,6 +10,7 @@ class FriendBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // :전구: userListProvider를 watch하면 AsyncValue 객체를 반환합니다.
+    final myId = ref.watch(userGlobalProvider.select((state) => state.userId));
     final userListAsyncValue = ref.watch(userListProvider);
     return DraggableScrollableSheet(
       //높이 조절
@@ -48,12 +50,13 @@ class FriendBottomSheet extends ConsumerWidget {
                 data: (userList) {
                   // :전구: 데이터가 로드되면 userList 변수에 List<User>가 들어옵니다.
                   // 이 userList를 ListView.builder의 itemCount에 사용합니다.
+                  final filteredList = userList.where((user) => user.id != myId).toList();
                   return ListView.builder(
                     controller: controller,
-                    itemCount: userList.length,
+                    itemCount: filteredList.length,
                     itemBuilder: (context, index) {
                       // :전구: userList에서 개별 user 객체를 가져옵니다.
-                      final user = userList[index];
+                      final user = filteredList[index];
                       // :전구: _FriendItem 위젯에 user 객체를 전달합니다.
                       return Padding(
                         padding: const EdgeInsets.symmetric(
