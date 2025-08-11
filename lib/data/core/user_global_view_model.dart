@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_team5_chating_app/data/repository/user_repository.dart';
 
 class UserGlobalState {
   final String userId;
@@ -33,7 +34,30 @@ class UserGlobalState {
 }
 
 class UserGlobalViewModel extends StateNotifier<UserGlobalState> {
-  UserGlobalViewModel() : super(UserGlobalState.initial());
+  final UserRepository _userRepository;
+
+  UserGlobalViewModel(this._userRepository) : super(UserGlobalState.initial());
+
+  Future<bool> join(String userName, String address, String aboutMe) async {
+    final userId = await _userRepository.insert(
+      name: userName,
+      aboutMe: aboutMe,
+      position: address,
+    );
+
+    if (userId != null) {
+      // ID가 null이 아니면 성공
+      state = state.copyWith(
+        userId: userId, // 생성된 userId로 상태 업데이트
+        userName: userName,
+        address: address,
+        aboutMe: aboutMe,
+      );
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   void setUserId(String id) {
     state = state.copyWith(userId: id);
@@ -54,5 +78,6 @@ class UserGlobalViewModel extends StateNotifier<UserGlobalState> {
 
 final userGlobalProvider =
     StateNotifierProvider<UserGlobalViewModel, UserGlobalState>((ref) {
-  return UserGlobalViewModel();
-});
+      final repo = UserRepository();
+      return UserGlobalViewModel(repo);
+    });

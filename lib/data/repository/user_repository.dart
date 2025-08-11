@@ -17,22 +17,22 @@ class UserRepository {
     return list;
   }
 
-  Future<bool> insert({
+  Future<String?> insert({
     required String name,
     required String aboutMe,
     required String position,
   }) async {
     try {
-      final docRef = firestore.collection('users').doc(); // 자동 생성 ID
+      final docRef = firestore.collection('users').doc();
       await docRef.set({
         'name': name,
         'aboutMe': aboutMe,
         'position': position,
       });
-      return true;
+      return docRef.id; // 성공 시, 생성된 문서의 ID 반환
     } catch (e) {
       print('에러메시지 $e');
-      return false;
+      return null; // 실패 시 null 반환
     }
   }
 }

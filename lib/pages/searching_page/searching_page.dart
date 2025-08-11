@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:project_team5_chating_app/pages/searching_page/widgets/friend_bottom_sheet.dart';
 import 'package:project_team5_chating_app/widgets/bottom_navi.dart';
@@ -6,7 +7,18 @@ import 'widgets/animated_location_image.dart';
 import 'widgets/profile_header.dart';
 
 class SearchingPage extends StatelessWidget {
-  const SearchingPage({super.key});
+  final String name;
+  final String aboutMe;
+  final String location;
+  final File? profileImage; // 변수 추가
+
+  const SearchingPage({
+    super.key,
+    required this.name,
+    required this.aboutMe,
+    required this.location,
+    required this.profileImage,
+  });
 
   void _showFriendBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -40,13 +52,19 @@ class SearchingPage extends StatelessWidget {
       body: Stack(
         children: [
           Column(
-            children: const [
+            children: [
               Padding(
-                padding: EdgeInsets.all(32),
-                child: ProfileHeader(),
+                padding: const EdgeInsets.all(32),
+                // 2. ProfileHeader에 전달받은 데이터를 넘겨줌
+                child: ProfileHeader(
+                  name: name,
+                  aboutMe: aboutMe,
+                  location: location,
+                  profileImage: profileImage,
+                ),
               ),
               // 근처 친구 찾아볼까 문구
-              Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 34),
                 child: SizedBox(
                   width: double.infinity,
@@ -56,8 +74,8 @@ class SearchingPage extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              AnimatedLocationImage(),
+              const SizedBox(height: 20),
+              const AnimatedLocationImage(),
             ],
           ),
           Positioned(
