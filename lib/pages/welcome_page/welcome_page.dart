@@ -252,7 +252,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
 
                         await ref
                             .read(userGlobalProvider.notifier)
-                            .join(name, address, aboutMe);
+                            .join(name, address, aboutMe, _image);
 
                         // SearchingPage로 데이터와 함께 이동
                         Navigator.push(

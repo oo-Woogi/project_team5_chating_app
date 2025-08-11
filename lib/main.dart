@@ -11,14 +11,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final repo = ChatRepository();
-  await repo.insert(
-    sender: '테스트 제목',
-    senderId: '테스트 컨텐트',
-    address: '테스트 작성자',
-    message: '테스트 메시지',
-    createdAt: '250808',
-  );
   runApp(const ProviderScope(child: MyApp()));
 }
 
