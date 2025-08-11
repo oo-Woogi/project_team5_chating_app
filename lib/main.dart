@@ -30,7 +30,7 @@ Future<void> _logAppStart() async {
 /// 화면 간 전달할 값들
 class ProfileArgs {
   final String userName;        // 웰컴에서 입력한 이름
-  final String? address;        // (선택) 위치/동네
+  final String? address;        // 위치/동네
   const ProfileArgs({required this.userName, this.address});
 }
 
@@ -57,48 +57,11 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         scaffoldBackgroundColor: const Color(0xFFF4F4F4),
       ),
-      // 첫 화면
-      initialRoute: '/splash',
-
-      // 간단 라우트 테이블
-      routes: {
-        '/splash': (_) => SplashPage(),
-
-        // 웰컴(프로필 입력 후 “친구 찾기”로 이동)
-        '/search': (ctx) => const SearchingPage(),
-
-        // 채팅 목록
-        '/chatList': (_) => ChatingListPage(),
-
-        // 채팅방
-        '/chat': (ctx) {
-          final args = ModalRoute.of(ctx)!.settings.arguments;
-
-          // 1) 정상 경로: ChatPageArgs가 오면 바로 채팅방 진입
-          if (args is ChatPageArgs) {
-            return ChatingPage(
-              roomId: args.roomId,
-              myId: args.myId,
-              myName: args.myName,
-            );
-          }
-
-          // 2) 레거시/임시: Map으로 전달된 경우도 지원
-          if (args is Map) {
-            final roomId = (args['roomId'] as String?) ?? 'room_demo';
-            final myName = (args['myName'] as String?) ?? 'guest';
-            final myId = (args['myId'] as String?) ?? myName;
-            return ChatingPage(
-              roomId: roomId,
-              myId: myId,
-              myName: myName,
-            );
-          }
-
-          // 3) 인자가 없으면 반드시 "상대찾기"부터 거치게 함
-          return const SearchingPage();
-        },
-      },
+      home : ChatingPage(
+        roomId: null,
+        myId: 'guest_id',
+        myName: 'guest_name',
+      )
     );
   }
 }

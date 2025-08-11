@@ -11,7 +11,7 @@ class ChatingPage extends StatefulWidget {
   final String? roomId;
   final String myId;
   final String myName;
-  final String? peerId;     // 상대방 사용자 id
+  final String? peerId;     // 상대방 사용자 id (선택)
   final String? peerName;   // 상대방 표시 이름
 
   const ChatingPage({
