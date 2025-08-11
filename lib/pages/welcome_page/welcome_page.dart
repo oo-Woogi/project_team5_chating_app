@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_team5_chating_app/data/core/user_global_view_model.dart';
 import 'core/address_view_model.dart';
 import 'core/geolocator_helper.dart';
-import 'data/repository/vworld_repository.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:project_team5_chating_app/pages/searching_page/searching_page.dart';
+import 'package:project_team5_chating_app/pages/welcome_page/core/address_view_model.dart';
 
 class WelcomePage extends ConsumerStatefulWidget {
   const WelcomePage({super.key});
@@ -13,35 +17,34 @@ class WelcomePage extends ConsumerStatefulWidget {
 
 class _WelcomePageState extends ConsumerState<WelcomePage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController(text: '수현');
+  final _nameController = TextEditingController();
+  final _aboutMeController = TextEditingController();
+  File? _image; // 선택된 이미지 파일을 저장할 변수
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchLocationAndAddress();
-  }
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-  Future<void> _fetchLocationAndAddress() async {
-    final position = await GeolocatorHelper.getPosition();
-    if (position != null) {
-      ref
-          .read(addressViewModel.notifier)
-          .searchByLocation(
-            position.latitude,
-            position.longitude,
-          );
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
     }
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _aboutMeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Watch for changes in the addressViewModel state.
     final addressState = ref.watch(addressViewModel);
 
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(backgroundColor: Colors.white),
         body: SingleChildScrollView(
@@ -62,18 +65,35 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                   ),
                 ),
 
-                // Picture
+                // 프로필
                 const SizedBox(height: 40),
                 Center(
                   child: Stack(
                     alignment: Alignment.bottomRight,
                     children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFE0E0E0),
-                          shape: BoxShape.circle,
+                      // 이미지 선택 시, 이미지 표시. 아니면 기본 아이콘 표시
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE0E0E0),
+                            shape: BoxShape.circle,
+                            image: _image != null
+                                ? DecorationImage(
+                                    image: FileImage(_image!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: _image == null
+                              ? const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 80,
+                                )
+                              : null,
                         ),
                       ),
                       Positioned(
@@ -97,7 +117,6 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                   ),
                 ),
 
-                // Form
                 const SizedBox(height: 35),
                 const Text(
                   'Full Name',
@@ -113,6 +132,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     return null;
                   },
                   decoration: const InputDecoration(
+                    hintText: '이름을 입력해주세요',
                     filled: false,
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -156,7 +176,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  initialValue: '여기계신 분들은 쉬우셨나봐요~',
+                  controller: _aboutMeController, // 컨트롤러 연결
                   maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -165,6 +185,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     return null;
                   },
                   decoration: const InputDecoration(
+                    hintText: '자기소개를 작성해주세요',
                     filled: false,
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -201,28 +222,58 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                   ),
                 ),
 
-                // Start Button
+                // 주소 표시 영역
+                if (addressState.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  Text(
+                    '현재 주소: ${addressState.first}',
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                ],
+
                 const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: () async {
+                    print('버튼');
                     if (_formKey.currentState!.validate()) {
-                      // 1. geolocator 클래스 이용해서 위도 경도 가지고오기
                       final position = await GeolocatorHelper.getPosition();
                       if (position != null) {
-                        // 2. 가지고 온 위도 경도를 address_view_model을 이용해서 주소로 변환
-                        final viewModel = ref.read(addressViewModel.notifier);
-                        viewModel.searchByLocation(
-                          position.latitude,
-                          position.longitude,
+                        await ref
+                            .read(addressViewModel.notifier)
+                            .searchByLocation(
+                              position.latitude,
+                              position.longitude,
+                            );
+
+                        final address = ref.read(addressViewModel).first;
+                        print(address);
+                        final name = _nameController.text;
+                        final aboutMe = _aboutMeController.text;
+
+                        await ref
+                            .read(userGlobalProvider.notifier)
+                            .join(name, address, aboutMe);
+
+                        // SearchingPage로 데이터와 함께 이동
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchingPage(
+                              name: name,
+                              aboutMe: aboutMe,
+                              location: address,
+                              profileImage: _image, // 이미지 파일 전달
+                            ),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('위치 정보를 가져올 수 없습니다.')),
                         );
                       }
-
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('로그인 성공!')));
-                      // You can add navigation to the next page here.
                     }
                   },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF24E1E),
                     shape: RoundedRectangleBorder(

@@ -68,9 +68,12 @@ class VworldRepository {
           'size': '100',
         },
       );
+      print(response.statusCode);
+      print(response.data);
       if (response.statusCode == 200 &&
-          response.data['response']['status'] == 'ok') {
+          response.data['response']['status'] == 'OK') {
         // response > result > featureCollection > features >> properties > full_nm
+
         final features = response
             .data['response']['result']['featureCollection']['features'];
         final featuresList = List.from(features);

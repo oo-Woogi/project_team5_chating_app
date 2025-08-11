@@ -4,8 +4,9 @@ import 'package:project_team5_chating_app/data/repository/chat_repository.dart';
 import 'package:project_team5_chating_app/firebase_options.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/splash_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         scaffoldBackgroundColor: const Color(0xFFF4F4F4),
       ),
-      home: ChatingPage(),
+      home: WelcomePage(),
     );
   }
 }

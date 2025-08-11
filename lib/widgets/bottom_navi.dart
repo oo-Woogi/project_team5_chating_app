@@ -19,18 +19,18 @@ class BottomNavi extends StatelessWidget {
         targetPage = ChatingListPage();
         break;
       case 2:
-        targetPage = SearchingPage();
+        targetPage = WelcomePage();
         break;
       default:
         return;
     }
 
     Navigator.pushReplacement(
-    context,
-    PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => targetPage,
-    ),
-  );
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => targetPage,
+      ),
+    );
   }
 
   @override
@@ -59,7 +59,12 @@ class BottomNavi extends StatelessWidget {
     );
   }
 
-  GestureDetector bottomNaviItem(BuildContext context, int index, String label, String img) {
+  GestureDetector bottomNaviItem(
+    BuildContext context,
+    int index,
+    String label,
+    String img,
+  ) {
     final isSelected = index == currentIndex;
     return GestureDetector(
       onTap: () {
@@ -71,14 +76,24 @@ class BottomNavi extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(isSelected? 'assets/images/icon_${img}_on.png' : 'assets/images/icon_${img}.png'),
-            SizedBox(height: 4,),
-            Text(label, style: TextStyle(color: isSelected ? Color(0xffF24E1E) : Color(0xff999999), fontSize: 12),),
+            Image.asset(
+              isSelected
+                  ? 'assets/images/icon_${img}_on.png'
+                  : 'assets/images/icon_${img}.png',
+            ),
+            SizedBox(
+              height: 4,
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Color(0xffF24E1E) : Color(0xff999999),
+                fontSize: 12,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
-
-  
