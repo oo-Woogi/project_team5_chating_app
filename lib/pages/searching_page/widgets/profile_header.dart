@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project_team5_chating_app/data/core/user_global_view_model.dart';
 import 'package:project_team5_chating_app/model/user.dart';
+import 'package:project_team5_chating_app/pages/welcome_page/profile_edit_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
 
 // 상단 프로필
@@ -22,7 +23,7 @@ class ProfileHeader extends ConsumerWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const WelcomePage()),
+          MaterialPageRoute(builder: (_) => const ProfileEditPage()),
         );
       },
       child: Row(
