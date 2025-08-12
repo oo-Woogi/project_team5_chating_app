@@ -161,6 +161,7 @@ class _FriendItem extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 user.imgpath?.isNotEmpty == true
                     ? ClipOval(
@@ -184,7 +185,8 @@ class _FriendItem extends ConsumerWidget {
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // stretch 대신 start 권장
                     children: [
                       Text(
                         user.name,
@@ -192,12 +194,14 @@ class _FriendItem extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
+                        overflow: TextOverflow.ellipsis, // overflow 처리 추가
                       ),
                       Text(
                         user.position,
                         style: const TextStyle(
                           color: Color(0xFF777777),
                         ),
+                        overflow: TextOverflow.ellipsis, // overflow 처리 추가
                       ),
                     ],
                   ),

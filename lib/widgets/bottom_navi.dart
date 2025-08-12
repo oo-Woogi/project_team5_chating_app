@@ -13,7 +13,7 @@ class BottomNavi extends StatelessWidget {
     Widget targetPage;
     switch (index) {
       case 0:
-        targetPage = WelcomePage();
+        targetPage = SearchingPage();
         break;
       case 1:
         targetPage = ChatingListPage();

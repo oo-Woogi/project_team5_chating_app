@@ -15,15 +15,15 @@ class ChatRepository {
     final collectionRef = firestore.collection('chat');
     final snapshot = await collectionRef.get();
     final docs = snapshot.docs;
+    print('getAll: Fetched ${docs.length} chats'); // 디버깅
     return docs.map((e) => Chat.fromJson(e.data())).toList();
   }
 
   // ---------------------------------------------------------------------------
-  // Root 컬렉션: chating_message  (요구사항: 메시지를 루트 컬렉션에 저장)
+  // Root 컬렉션: chating_message
   // ---------------------------------------------------------------------------
 
   /// 메시지 1건 저장 (루트 컬렉션: chating_message)
-  /// createdAt은 항상 서버시간으로 저장. (호출부에서 어떤 값을 넘겨도 무시)
   Future<bool> insert({
     required String sender,
     required String senderId,
@@ -34,54 +34,64 @@ class ChatRepository {
     try {
       final firestore = FirebaseFirestore.instance;
       final docRef = firestore.collection('chating_message').doc();
-
       await docRef.set({
-        'sender': sender,           // 표시용 이름
-        'senderName': sender,       // 호환 키
-        'senderId': senderId,       // 발신자 UID
-        'address': address,         // 방/주소 식별자 또는 메타
-        'message': message,         // 본문
+        'sender': sender,
+        'senderName': sender,
+        'senderId': senderId,
+        'address': address,
+        'message': message,
         'createdAt': FieldValue.serverTimestamp(),
       });
+      print('insert: Message saved to chating_message, address=$address'); // 디버깅
       return true;
     } catch (e) {
-      // ignore: avoid_print
-      print('insert() 실패: $e');
+      print('insert failed: $e');
       return false;
     }
   }
 
   /// 특정 roomId의 메시지 스트림 (루트 컬렉션: chating_message)
-  /// roomId 필터가 필요한 경우, 저장 시 map에 roomId 필드를 함께 넣으세요.
   Stream<QuerySnapshot<Map<String, dynamic>>> watchChatMessagesRoot(String roomId) {
     final firestore = FirebaseFirestore.instance;
-    return firestore
+    final stream = firestore
         .collection('chating_message')
         .where('roomId', isEqualTo: roomId)
         .orderBy('createdAt')
         .snapshots();
+    stream.listen((snapshot) {
+      print('watchChatMessagesRoot: roomId=$roomId, docs=${snapshot.docs.length}'); // 디버깅
+    }, onError: (e) {
+      print('watchChatMessagesRoot error: $e');
+    });
+    return stream;
   }
 
-  /// 루트 컬렉션에 메시지를 저장할 때 roomId를 함께 기록하고 싶을 때 사용
+  /// 루트 컬렉션에 메시지 저장
   Future<void> sendChatMessageRoot({
     required String roomId,
     required String senderId,
     required String senderName,
     required String text,
   }) async {
-    final firestore = FirebaseFirestore.instance;
-    await firestore.collection('chating_message').add({
-      'roomId': roomId,
-      'senderId': senderId,
-      'senderName': senderName,
-      'sender': senderName,
-      'message': text,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      final firestore = FirebaseFirestore.instance;
+      await firestore.collection('chating_message').add({
+        'roomId': roomId,
+        'senderId': senderId,
+        'senderName': senderName,
+        'sender': senderName,
+        'message': text,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      print('sendChatMessageRoot: Message sent to chating_message, roomId=$roomId'); // 디버깅
+    } catch (e) {
+      print('sendChatMessageRoot failed: $e');
+      rethrow; // ChatingPage에서 에러 처리
+    }
   }
 
   // ---------------------------------------------------------------------------
-  // Subcollection: rooms/{roomId}/messages (필요 시 사용)
+  // Subcollection: rooms/{roomId}/messages
   // ---------------------------------------------------------------------------
 
   String _pairId(String a, String b) {
@@ -89,7 +99,7 @@ class ChatRepository {
     return '${list[0]}_${list[1]}';
   }
 
-  /// (나, 상대) uid로 방 ID를 결정적으로 생성하고, 없으면 생성 후 반환
+  /// (나, 상대) uid로 방 ID 생성/반환
   Future<String> getOrCreateRoomId({
     required String myUid,
     required String partnerUid,
@@ -105,6 +115,9 @@ class ChatRepository {
         'lastMessage': null,
         'lastAt': FieldValue.serverTimestamp(),
       });
+      print('getOrCreateRoomId: Created room $roomId'); // 디버깅
+    } else {
+      print('getOrCreateRoomId: Room $roomId exists'); // 디버깅
     }
     return roomId;
   }
@@ -116,31 +129,41 @@ class ChatRepository {
     required String senderName,
     required String text,
   }) async {
-    final firestore = FirebaseFirestore.instance;
-    final msgCol = firestore.collection('rooms').doc(roomId).collection('messages');
-
-    await msgCol.add({
-      'senderId': senderId,
-      'senderName': senderName,
-      'sender': senderName,
-      'message': text,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
-
-    await firestore.collection('rooms').doc(roomId).update({
-      'lastMessage': text,
-      'lastAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      final firestore = FirebaseFirestore.instance;
+      final msgCol = firestore.collection('rooms').doc(roomId).collection('messages');
+      await msgCol.add({
+        'senderId': senderId,
+        'senderName': senderName,
+        'sender': senderName,
+        'message': text,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      await firestore.collection('rooms').doc(roomId).update({
+        'lastMessage': text,
+        'lastAt': FieldValue.serverTimestamp(),
+      });
+      print('sendMessageToRoom: Message sent to rooms/$roomId/messages'); // 디버깅
+    } catch (e) {
+      print('sendMessageToRoom failed: $e');
+      rethrow; // ChatingPage에서 에러 처리
+    }
   }
 
   /// rooms/{roomId}/messages 실시간 스트림
   Stream<QuerySnapshot<Map<String, dynamic>>> watchMessages(String roomId) {
     final firestore = FirebaseFirestore.instance;
-    return firestore
+    final stream = firestore
         .collection('rooms')
         .doc(roomId)
         .collection('messages')
         .orderBy('createdAt')
         .snapshots();
+    stream.listen((snapshot) {
+      print('watchMessages: roomId=$roomId, docs=${snapshot.docs.length}'); // 디버깅
+    }, onError: (e) {
+      print('watchMessages error: $e');
+    });
+    return stream;
   }
 }

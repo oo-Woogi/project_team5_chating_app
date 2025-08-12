@@ -13,7 +13,7 @@ class ProfileHeader extends ConsumerWidget {
     final userState = ref.watch(userGlobalProvider);
 
     // 데이터가 없으면 안내 문구 표시
-    if (userState == null) {
+    if (userState.userId.isEmpty) { // userState.userId로 상태 확인
       return const Text('프로필을 다시 설정해주세요.');
     }
 
@@ -26,14 +26,24 @@ class ProfileHeader extends ConsumerWidget {
       },
       child: Row(
         children: [
-          // 프로필 이미지 (없으면 기본 이미지)
+          // ✨ 변경: 이미지 파일 대신 이미지 URL 사용
           ClipOval(
-            child: userState.imageFile != null
-                ? Image.file(
-                    userState.imageFile!, // 이부분 오류나서 강제 집행
+            child: userState.imgUrl != null
+                ? Image.network(
+                    userState.imgUrl!,
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      'assets/images/icon_person_red.png',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
                   )
                 : Image.asset(
                     'assets/images/icon_person_red.png',
