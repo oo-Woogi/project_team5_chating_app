@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project_team5_chating_app/data/core/user_global_view_model.dart';
 import 'package:project_team5_chating_app/model/user.dart';
+import 'package:project_team5_chating_app/pages/welcome_page/core/address_view_model.dart' show AddressRegion;
 import 'package:project_team5_chating_app/pages/searching_page/searching_view_model.dart';
 import 'package:project_team5_chating_app/pages/chating_page/chating_page.dart';
 import 'package:flutter/foundation.dart';
@@ -15,6 +16,12 @@ class FriendBottomSheet extends ConsumerWidget {
     // :전구: userListProvider를 watch하면 AsyncValue 객체를 반환합니다.
     final myId = ref.watch(userGlobalProvider.select((state) => state.userId));
     final userListAsyncValue = ref.watch(userListProvider);
+    // 내 프로필 전체 상태도 watch해서 위치 변경 시 즉시 필터 재적용
+    final myProfileState = ref.watch(userGlobalProvider);
+    // 프로필(위치 등) 변경 시 목록 새로고침
+    ref.listen(userGlobalProvider, (previous, next) {
+      ref.invalidate(userListProvider);
+    });
     return DraggableScrollableSheet(
       //높이 조절
       initialChildSize: 0.75, //처음 높이
@@ -38,12 +45,24 @@ class FriendBottomSheet extends ConsumerWidget {
               ),
             ),
             Container(
-              padding: EdgeInsets.only(left: 22, bottom: 15, top: 10),
+              padding: const EdgeInsets.only(left: 22, right: 12, bottom: 15, top: 10),
               width: double.infinity,
-              child: Text(
-                '근처에 있는 친구',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
-                textAlign: TextAlign.left,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '근처에 있는 친구',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+                  ),
+                  IconButton(
+                    tooltip: '새로고침',
+                    icon: const Icon(Icons.refresh),
+                    onPressed: () {
+                      // 수동 새로고침: provider 무효화 → 재조회
+                      ref.invalidate(userListProvider);
+                    },
+                  ),
+                ],
               ),
             ),
             // 친구 목록
@@ -54,16 +73,51 @@ class FriendBottomSheet extends ConsumerWidget {
                   // :전구: 데이터가 로드되면 userList 변수에 List<User>가 들어옵니다.
                   // 이 userList를 ListView.builder의 itemCount에 사용합니다.
                   final myIdStr = (myId ?? '').toString().trim();
+
+                  // 내 지역(sido) 추출: 전역 프로필 상태에서 직접 가져와 즉시 반영
+                  String mySido = '';
+                  try {
+                    final dyn = myProfileState as dynamic;
+                    String addr = '';
+                    try {
+                      final v = dyn.address; if (v is String && v.isNotEmpty) addr = v;
+                    } catch (_) {}
+                    if (addr.isEmpty) {
+                      try { final v = dyn.position; if (v is String && v.isNotEmpty) addr = v; } catch (_) {}
+                    }
+                    if (addr.isEmpty) {
+                      try { final v = dyn.location; if (v is String && v.isNotEmpty) addr = v; } catch (_) {}
+                    }
+                    if (addr.isEmpty) {
+                      try { final v = dyn.addr; if (v is String && v.isNotEmpty) addr = v; } catch (_) {}
+                    }
+                    mySido = AddressRegion.parse(addr).sido;
+                  } catch (_) {
+                    mySido = '';
+                  }
+                  // 같은 시/도(sido)만 노출 (mySido가 비어있으면 전체 노출)
                   final filteredList = userList
-                      .where((u) => u.id.toString().trim() != myIdStr)
+                      .where((u) => u.id.toString().trim() != myIdStr) // 본인 제외
+                      .where((u) {
+                        if (mySido.isEmpty) return true; // 내 지역을 못 찾았으면 필터 스킵
+                        final pos = (u.position ?? '').toString();
+                        final uSido = AddressRegion.parse(pos).sido;
+                        return uSido == mySido;
+                      })
                       .toList();
+                  if (filteredList.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 8.0),
+                        child: Text('근처에 친구가 없습니다.'),
+                      ),
+                    );
+                  }
                   return ListView.builder(
                     controller: controller,
                     itemCount: filteredList.length,
                     itemBuilder: (context, index) {
-                      // :전구: userList에서 개별 user 객체를 가져옵니다.
                       final user = filteredList[index];
-                      // :전구: _FriendItem 위젯에 user 객체를 전달합니다.
                       return Padding(
                         padding: const EdgeInsets.symmetric(
                           vertical: 10,
