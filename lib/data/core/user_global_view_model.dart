@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:project_team5_chating_app/data/repository/user_repository.dart';
 
@@ -8,46 +7,56 @@ class UserGlobalState {
   final String userName;
   final String address;
   final String aboutMe;
-
+  final File? imageFile;
   UserGlobalState({
     required this.userId,
     required this.userName,
     required this.address,
     required this.aboutMe,
+    this.imageFile,
   });
-
   UserGlobalState copyWith({
     String? userId,
     String? userName,
     String? address,
     String? aboutMe,
+    File? imageFile,
   }) {
     return UserGlobalState(
       userId: userId ?? this.userId,
       userName: userName ?? this.userName,
       address: address ?? this.address,
       aboutMe: aboutMe ?? this.aboutMe,
+      imageFile: imageFile ?? this.imageFile,
     );
   }
 
   factory UserGlobalState.initial() {
-    return UserGlobalState(userId: '', userName: '', address: '', aboutMe: '');
+    return UserGlobalState(
+      userId: '',
+      userName: '',
+      address: '',
+      aboutMe: '',
+      imageFile: null,
+    );
   }
 }
 
 class UserGlobalViewModel extends StateNotifier<UserGlobalState> {
   final UserRepository _userRepository;
-
   UserGlobalViewModel(this._userRepository) : super(UserGlobalState.initial());
-
-  Future<bool> join(String userName, String address, String aboutMe, [File? imageFile]) async {
+  Future<bool> join(
+    String userName,
+    String address,
+    String aboutMe, [
+    File? imageFile,
+  ]) async {
     final userId = await _userRepository.insert(
       name: userName,
       aboutMe: aboutMe,
       position: address,
-      imageFile: imageFile
+      imageFile: imageFile,
     );
-
     if (userId != null) {
       // ID가 null이 아니면 성공
       state = state.copyWith(
@@ -55,7 +64,7 @@ class UserGlobalViewModel extends StateNotifier<UserGlobalState> {
         userName: userName,
         address: address,
         aboutMe: aboutMe,
-        
+        imageFile: imageFile,
       );
       return true;
     } else {

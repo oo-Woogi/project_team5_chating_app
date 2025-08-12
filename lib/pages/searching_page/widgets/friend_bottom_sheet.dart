@@ -54,7 +54,9 @@ class FriendBottomSheet extends ConsumerWidget {
                   // :전구: 데이터가 로드되면 userList 변수에 List<User>가 들어옵니다.
                   // 이 userList를 ListView.builder의 itemCount에 사용합니다.
                   final myIdStr = (myId ?? '').toString().trim();
-                  final filteredList = userList.where((u) => u.id.toString().trim() != myIdStr).toList();
+                  final filteredList = userList
+                      .where((u) => u.id.toString().trim() != myIdStr)
+                      .toList();
                   return ListView.builder(
                     controller: controller,
                     itemCount: filteredList.length,
@@ -115,7 +117,9 @@ class _FriendItem extends ConsumerWidget {
               myUid = authUid;
             }
           } catch (_) {}
-          debugPrint('[FriendItem] tap myUid=$myUid partner=${user.id}/${user.name}');
+          debugPrint(
+            '[FriendItem] tap myUid=$myUid partner=${user.id}/${user.name}',
+          );
           if (myUid.isEmpty) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('로그인 상태를 확인할 수 없어요. 다시 시도해 주세요.')),
@@ -126,7 +130,10 @@ class _FriendItem extends ConsumerWidget {
           try {
             // 방 생성/조회 (예외를 잡아서 사용자에게 원인 표시)
             final vm = ref.read(searchingViewModelProvider.notifier);
-            final info = await vm.createChatLaunchInfo(myUid: myUid, partner: user);
+            final info = await vm.createChatLaunchInfo(
+              myUid: myUid,
+              partner: user,
+            );
 
             if (!context.mounted) return;
             debugPrint('[FriendItem] selected -> pop with ChatLaunchInfo');
@@ -135,7 +142,11 @@ class _FriendItem extends ConsumerWidget {
             debugPrint('[FriendItem] onTap error: $e\n$st');
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('채팅방 생성 실패: ${e is fb_auth.FirebaseAuthException ? e.code : e}')),
+              SnackBar(
+                content: Text(
+                  '채팅방 생성 실패: ${e is fb_auth.FirebaseAuthException ? e.code : e}',
+                ),
+              ),
             );
           }
         },

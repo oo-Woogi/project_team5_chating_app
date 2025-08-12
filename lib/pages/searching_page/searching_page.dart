@@ -1,27 +1,27 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:project_team5_chating_app/pages/searching_page/widgets/friend_bottom_sheet.dart';
 import 'package:project_team5_chating_app/widgets/bottom_navi.dart';
-import 'widgets/chat_icon_button.dart';
 import 'widgets/animated_location_image.dart';
 import 'widgets/profile_header.dart';
 import 'package:project_team5_chating_app/pages/chating_page/chating_page.dart';
-import 'package:project_team5_chating_app/pages/searching_page/searching_view_model.dart' show ChatLaunchInfo;
+import 'package:project_team5_chating_app/pages/searching_page/searching_view_model.dart'
+    show ChatLaunchInfo;
 
 class SearchingPage extends StatelessWidget {
-  final String name;
-  final String aboutMe;
-  final String location;
-  final File? profileImage; // 변수 추가
+  // final String name;
+  // final String aboutMe;
+  // final String location;
+  // final File? profileImage; // 변수 추가
 
-  const SearchingPage({
-    super.key,
-    required this.name,
-    required this.aboutMe,
-    required this.location,
-    required this.profileImage,
-  });
+  // const SearchingPage({
+  //   super.key,
+  //   required this.name,
+  //   required this.aboutMe,
+  //   required this.location,
+  //   required this.profileImage,
+  // });
 
   Future<void> _showFriendBottomSheet(BuildContext context) async {
     try {
@@ -44,7 +44,9 @@ class SearchingPage extends StatelessWidget {
       }
       if (!context.mounted) return;
 
-      debugPrint('[SearchingPage] navigate -> roomId=${info.roomId}, partner=${info.partner.name}');
+      debugPrint(
+        '[SearchingPage] navigate -> roomId=${info.roomId}, partner=${info.partner.name}',
+      );
       // 바텀시트가 완전히 닫힌 뒤에 네비게이션을 트리거
       await Future.delayed(const Duration(milliseconds: 10));
       Navigator.of(context, rootNavigator: true).push(
@@ -67,7 +69,7 @@ class SearchingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = name.replaceAll('/search', '');
+    // final displayName = name.replaceAll('/search', '');
     return Scaffold(
       backgroundColor: const Color(0xFFF3F3F3),
       appBar: AppBar(
@@ -81,10 +83,6 @@ class SearchingPage extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        actions: const [
-          ChatIconButton(),
-          SizedBox(width: 10),
-        ],
       ),
       body: Stack(
         children: [
@@ -94,10 +92,10 @@ class SearchingPage extends StatelessWidget {
                 padding: const EdgeInsets.all(32),
                 // 2. ProfileHeader에 전달받은 데이터를 넘겨줌
                 child: ProfileHeader(
-                  name: displayName,
-                  aboutMe: aboutMe,
-                  location: location,
-                  profileImage: profileImage,
+                  // name: displayName,
+                  // aboutMe: aboutMe,
+                  // location: location,
+                  // profileImage: profileImage,
                 ),
               ),
               // 근처 친구 찾아볼까 문구
