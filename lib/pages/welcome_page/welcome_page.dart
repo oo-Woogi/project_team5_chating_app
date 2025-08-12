@@ -44,6 +44,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(backgroundColor: Colors.white),
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -57,12 +58,12 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     'Profile',
                     style: TextStyle(
                       fontFamily: 'BMJUA',
-                      fontSize: 40,
+                      fontSize: 44,
                       color: Colors.black,
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 35),
                 Center(
                   child: Stack(
                     alignment: Alignment.bottomRight,
@@ -70,10 +71,10 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                       GestureDetector(
                         onTap: _pickImage,
                         child: Container(
-                          width: 120,
-                          height: 120,
+                          width: 138,
+                          height: 138,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE0E0E0),
+                            color: const Color(0xFFD9D9D9),
                             shape: BoxShape.circle,
                             image: _image != null
                                 ? DecorationImage(
@@ -95,23 +96,23 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                         bottom: 0,
                         right: 0,
                         child: Container(
-                          width: 36,
-                          height: 36,
+                          width: 38,
+                          height: 39,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFF24E1E),
+                            color: Color(0xFFF2421E),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.edit,
                             color: Colors.white,
-                            size: 20,
+                            size: 19,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 35),
+                const SizedBox(height: 58),
                 const Text(
                   'Full Name',
                   style: TextStyle(color: Color(0xFFA7A7A7), fontSize: 14),
@@ -130,28 +131,28 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     filled: false,
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0xFFE5E5E5),
+                        color: Color(0x66333333),
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0xFFE5E5E5),
+                        color: Color(0x66333333),
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0xFFE5E5E5),
+                        color: Color(0xFFC7C7C7), // o
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0x66333333),
+                        color: Color(0x66333333), // k
                         width: 2.0,
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -169,8 +170,8 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  controller: _aboutMeController,
-                  maxLines: 3,
+                  controller: _aboutMeController, // 컨트롤러 연결
+                  //maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '자기소개를 작성해주세요.';
@@ -182,21 +183,21 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     filled: false,
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0xFFE5E5E5),
+                        color: Color(0x66333333),
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0xFFE5E5E5),
+                        color: Color(0x66333333),
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Color(0xFFE5E5E5),
+                        color: Color(0xFFC7C7C7),
                         width: 1.0,
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -221,7 +222,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
                 ],
-                const SizedBox(height: 40),
+                const SizedBox(height: 28),
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
@@ -261,7 +262,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF24E1E),
+                    backgroundColor: const Color(0xFFF2421E),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
