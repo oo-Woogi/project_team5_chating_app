@@ -6,7 +6,6 @@ import 'core/address_view_model.dart';
 import 'core/geolocator_helper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_team5_chating_app/pages/searching_page/searching_page.dart';
-import 'package:project_team5_chating_app/pages/welcome_page/core/address_view_model.dart';
 
 class WelcomePage extends ConsumerStatefulWidget {
   const WelcomePage({super.key});
@@ -19,12 +18,11 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _aboutMeController = TextEditingController();
-  File? _image; // 선택된 이미지 파일을 저장할 변수
+  File? _image;
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -64,14 +62,11 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     ),
                   ),
                 ),
-
-                // 프로필
                 const SizedBox(height: 40),
                 Center(
                   child: Stack(
                     alignment: Alignment.bottomRight,
                     children: [
-                      // 이미지 선택 시, 이미지 표시. 아니면 기본 아이콘 표시
                       GestureDetector(
                         onTap: _pickImage,
                         child: Container(
@@ -116,7 +111,6 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 35),
                 const Text(
                   'Full Name',
@@ -168,7 +162,6 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
                 const Text(
                   'About me',
@@ -176,7 +169,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  controller: _aboutMeController, // 컨트롤러 연결
+                  controller: _aboutMeController,
                   maxLines: 3,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -221,8 +214,6 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     ),
                   ),
                 ),
-
-                // 주소 표시 영역
                 if (addressState.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   Text(
@@ -230,42 +221,38 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                     style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
                 ],
-
                 const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: () async {
-                    print('버튼');
                     if (_formKey.currentState!.validate()) {
                       final position = await GeolocatorHelper.getPosition();
                       if (position != null) {
-                        await ref
-                            .read(addressViewModel.notifier)
-                            .searchByLocation(
-                              position.latitude,
-                              position.longitude,
-                            );
+                        await ref.read(addressViewModel.notifier).searchByLocation(
+                          position.latitude,
+                          position.longitude,
+                        );
 
                         final address = ref.read(addressViewModel).first;
-                        print(address);
                         final name = _nameController.text;
                         final aboutMe = _aboutMeController.text;
 
-                        await ref
-                            .read(userGlobalProvider.notifier)
-                            .join(name, address, aboutMe, _image);
-
-                        // SearchingPage로 데이터와 함께 이동
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SearchingPage(
-                              name: '$name/search',
-                              aboutMe: aboutMe,
-                              location: address,
-                              profileImage: _image, // 이미지 파일 전달
-                            ),
-                          ),
+                        final success = await ref.read(userGlobalProvider.notifier).join(
+                          name,
+                          address,
+                          aboutMe,
+                          _image,
                         );
+
+                        if (success) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => SearchingPage()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('프로필 저장에 실패했습니다.')),
+                          );
+                        }
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('위치 정보를 가져올 수 없습니다.')),
@@ -273,7 +260,6 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                       }
                     }
                   },
-
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF24E1E),
                     shape: RoundedRectangleBorder(

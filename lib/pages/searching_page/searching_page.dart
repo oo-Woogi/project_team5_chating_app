@@ -139,7 +139,7 @@ class SearchingPage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavi(2),
+      bottomNavigationBar: BottomNavi(0),
     );
   }
 }
