@@ -14,7 +14,8 @@ class ProfileHeader extends ConsumerWidget {
     final userState = ref.watch(userGlobalProvider);
 
     // 데이터가 없으면 안내 문구 표시
-    if (userState.userId.isEmpty) { // userState.userId로 상태 확인
+    if (userState.userId.isEmpty) {
+      // userState.userId로 상태 확인
       return const Text('프로필을 다시 설정해주세요.');
     }
 

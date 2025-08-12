@@ -100,7 +100,7 @@ class SearchingPage extends StatelessWidget {
               ),
               // 근처 친구 찾아볼까 문구
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 34),
+                padding: EdgeInsets.symmetric(horizontal: 34, vertical: 10),
                 child: SizedBox(
                   width: double.infinity,
                   child: Text(
@@ -114,7 +114,7 @@ class SearchingPage extends StatelessWidget {
             ],
           ),
           Positioned(
-            bottom: 140,
+            bottom: 110,
             left: 32,
             right: 32,
 

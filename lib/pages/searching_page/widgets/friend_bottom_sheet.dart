@@ -24,25 +24,30 @@ class FriendBottomSheet extends ConsumerWidget {
     });
     return DraggableScrollableSheet(
       //높이 조절
-      initialChildSize: 0.75, //처음 높이
+      initialChildSize: 0.8, //처음 높이
       minChildSize: 0.2, // 최소
       maxChildSize: 0.8, //최대
       expand: false,
+
       builder: (context, controller) {
-        return Column(
-          children: [
-            // 스크롤 컨트롤러 같이 생긴 바
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12.0),
-              child: Center(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Color(0xFF777777),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+        return Container(
+          color: Color(0xFFF3F3F3),
+          child: Column(
+            children: [
+              // 스크롤 컨트롤러 같이 생긴 바
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12.0),
+                child: Center(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF777777),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    child: SizedBox(width: 40, height: 5),
                   ),
-                  child: SizedBox(width: 40, height: 5),
                 ),
               ),
+
             ),
             Container(
               padding: const EdgeInsets.only(left: 22, right: 12, bottom: 15, top: 10),
@@ -137,8 +142,8 @@ class FriendBottomSheet extends ConsumerWidget {
                   return Center(child: Text('에러가 발생했습니다: $error'));
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -208,6 +213,7 @@ class _FriendItem extends ConsumerWidget {
           height: 100,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
+            color: Colors.white,
             border: Border.all(
               color: const Color(0XFFF24E1E),
             ),
