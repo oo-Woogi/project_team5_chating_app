@@ -259,7 +259,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => SearchingPage(
-                              name: name,
+                              name: '$name/search',
                               aboutMe: aboutMe,
                               location: address,
                               profileImage: _image, // 이미지 파일 전달
