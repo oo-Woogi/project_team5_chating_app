@@ -48,3 +48,31 @@ firebase.json
 GoogleService-Info.plist
 google-services.json
 lib/firebase_options.dart
+
+# --- Xcode / Apple build artifacts (noise) ---
+**/DerivedData/
+**/*.xcuserstate
+**/*.xcodeproj/xcuserdata/**
+**/*.xcworkspace/xcuserdata/**
+# Xcode 15+ build fingerprints
+**/TARGET@v11_*
+**/PROJECT@v11_*
+
+# --- Flutter ephemeral & symlinks ---
+ios/Flutter/ephemeral/
+macos/Flutter/ephemeral/
+**/.symlinks/
+
+# --- CocoaPods (keep Podfile.lock tracked) ---
+ios/Pods/
+macos/Pods/
+
+# --- Xcode workspace cache (v11) ---
+**/WORKSPACE@v11_*
+**/XCBuildData/**
+**/PIFCache/**
+
+# --- Build directories (Flutter/Xcode/Gradle) ---
+/build/
+**/build/
+lib/build/

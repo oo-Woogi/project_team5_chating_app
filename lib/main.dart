@@ -1,39 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:project_team5_chating_app/data/repository/chat_repository.dart';
-import 'package:project_team5_chating_app/firebase_options.dart';
-import 'package:project_team5_chating_app/pages/welcome_page/splash_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:project_team5_chating_app/data/core/user_global_view_model.dart';
+import 'package:project_team5_chating_app/data/repository/user_repository.dart';
+import 'package:project_team5_chating_app/pages/searching_page/searching_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
+import 'package:project_team5_chating_app/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  final repo = ChatRepository();
-  await repo.insert(
-    sender: '테스트 제목',
-    senderId: '테스트 컨텐트',
-    address: '테스트 작성자',
-    message: '테스트 메시지',
-    createdAt: '250808',
+
+  final auth = FirebaseAuth.instance;
+  if (auth.currentUser == null) {
+    await auth.signInAnonymously();
+    print('익명 로그인 완료: ${auth.currentUser?.uid}');
+  }
+
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
   );
-  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userRepository = UserRepository();
+
     return MaterialApp(
-      title: 'Tokka App',
-      theme: ThemeData(
-        fontFamily: 'Pretendard',
-        scaffoldBackgroundColor: const Color(0xFFF4F4F4),
+      title: 'Chating App',
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          if (snapshot.hasData) {
+            final uid = snapshot.data!.uid;
+
+            return FutureBuilder(
+              future: userRepository.getUserProfile(uid),
+              builder: (context, profileSnapshot) {
+                if (profileSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                if (profileSnapshot.hasData && profileSnapshot.data != null) {
+                  // 프로필 있으면 바로 검색 페이지
+                  ref.read(userGlobalProvider.notifier).loadUserProfile(uid);
+                  return SearchingPage();
+                } else {
+                  // 프로필 없으면 웰컴페이지로 이동
+                  return const WelcomePage();
+                }
+              },
+            );
+          }
+
+          // 유저 데이터 없으면 웰컴페이지 (보통 로그아웃 상태)
+          return const WelcomePage();
+        },
       ),
-      home: WelcomePage(),
     );
   }
 }

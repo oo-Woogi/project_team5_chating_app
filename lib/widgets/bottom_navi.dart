@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_team5_chating_app/pages/chating_list_page/chating_list_page.dart';
 import 'package:project_team5_chating_app/pages/searching_page/searching_page.dart';
+import 'package:project_team5_chating_app/pages/welcome_page/profile_edit_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
 
 class BottomNavi extends StatelessWidget {
@@ -13,13 +14,13 @@ class BottomNavi extends StatelessWidget {
     Widget targetPage;
     switch (index) {
       case 0:
-        targetPage = WelcomePage();
+        targetPage = SearchingPage();
         break;
       case 1:
         targetPage = ChatingListPage();
         break;
       case 2:
-        targetPage = WelcomePage();
+        targetPage = ProfileEditPage();
         break;
       default:
         return;

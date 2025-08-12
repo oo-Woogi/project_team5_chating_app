@@ -17,7 +17,7 @@ class _AnimatedLocationImageState extends State<AnimatedLocationImage>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 2), // 움직이는 속도 조절
     )..repeat(reverse: true);
 
     _animation = Tween<double>(begin: 0, end: 20).animate(
@@ -41,8 +41,8 @@ class _AnimatedLocationImageState extends State<AnimatedLocationImage>
       ),
       child: Image.asset(
         'assets/images/img_main.png',
-        width: 240,
-        height: 240,
+        width: 290,
+        height: 290,
         fit: BoxFit.cover,
       ),
     );

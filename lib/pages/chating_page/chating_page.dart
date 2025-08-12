@@ -2,34 +2,84 @@ import 'package:flutter/material.dart';
 import 'package:project_team5_chating_app/pages/chating_page/widgets/chat_button.dart';
 import 'package:project_team5_chating_app/widgets/appbar.dart';
 import 'package:project_team5_chating_app/pages/chating_page/widgets/message_bubble.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:project_team5_chating_app/data/repository/chat_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ChatingPage extends StatefulWidget {
-  const ChatingPage({super.key});
+class ChatingPage extends ConsumerStatefulWidget {
+  const ChatingPage({
+    super.key,
+    this.roomId,
+    this.partnerUid,
+    this.partnerName,
+  });
+
+  final String? roomId;
+  final String? partnerUid;
+  final String? partnerName;
 
   @override
-  State<ChatingPage> createState() => _ChatingPageState();
+  ConsumerState<ChatingPage> createState() => _ChatingPageState();
 }
 
-class _ChatingPageState extends State<ChatingPage> {
+class _ChatingPageState extends ConsumerState<ChatingPage> {
   final ScrollController _scrollController = ScrollController();
-  final List<_Message> _messages = [];
+  String? _roomId;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeRoomId();
+  }
+
+  Future<void> _initializeRoomId() async {
+    if (widget.roomId != null && widget.roomId!.isNotEmpty) {
+      _roomId = widget.roomId;
+      print('Using provided roomId: $_roomId'); // 디버깅
+    } else if (widget.partnerUid != null && widget.partnerUid!.isNotEmpty) {
+      final myUid = FirebaseAuth.instance.currentUser?.uid;
+      if (myUid != null) {
+        _roomId = await ref
+            .read(chatRepositoryProvider)
+            .getOrCreateRoomId(
+              myUid: myUid,
+              partnerUid: widget.partnerUid!,
+            );
+        print('Generated roomId: $_roomId'); // 디버깅
+        if (mounted) setState(() {});
+      }
+    } else {
+      print('Error: No roomId or partnerUid provided'); // 디버깅
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('채팅방 ID 또는 상대 정보가 없습니다.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // 앱바에서 사용할 actions
     Widget actions = IconButton(
       icon: Image.asset('assets/images/Frame.png', width: 24, height: 24),
       onPressed: () {},
     );
 
-    final now = DateTime.now();
+    final appBarTitle =
+        (widget.partnerName != null && widget.partnerName!.isNotEmpty)
+        ? widget.partnerName!
+        : '채팅';
 
     return Scaffold(
-      appBar: MyAppbar(title: '채팅', actions: actions),
+      appBar: MyAppbar(title: appBarTitle, actions: actions),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 10),
+            padding: const EdgeInsets.only(
+              top: 20,
+              left: 20,
+              right: 20,
+              bottom: 10,
+            ),
             child: Container(
               height: 70,
               width: double.infinity,
@@ -50,52 +100,184 @@ class _ChatingPageState extends State<ChatingPage> {
               ),
             ),
           ),
+          if (_roomId == null || _roomId!.isEmpty)
+            const Expanded(
+              child: Center(child: Text('채팅방을 열 수 없습니다. 다시 시도해주세요.')),
+            )
+          else
+            Expanded(
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: ref
+                    .read(chatRepositoryProvider)
+                    .watchMessages(_roomId!),
+                builder: (context, snapshot) {
+                  print(
+                    'StreamBuilder state: ${snapshot.connectionState}, '
+                    'hasData: ${snapshot.hasData}, '
+                    'docs: ${snapshot.data?.docs.length ?? 0}',
+                  ); // 디버깅
+                  if (snapshot.hasError) {
+                    print('StreamBuilder error: ${snapshot.error}'); // 디버깅
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('메시지 불러오기 오류: ${snapshot.error}'),
+                          ElevatedButton(
+                            onPressed: () => setState(() {}), // 재시도
+                            child: const Text('재시도'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final docs = snapshot.data?.docs ?? [];
+                  final me = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-          // 메시지 영역
-          Expanded(
-            child: ListView(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              children: [
-                if (_messages.isNotEmpty)
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9D9D9),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _formatDateHeader(now),
-                        style: const TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w400,
-                          fontSize: 13,
-                          color: Color(0xff333333),
-                        ),
-                      ),
+                  if (docs.isEmpty) {
+                    return const Center(child: Text('메시지가 없습니다.')); // 빈 상태 표시
+                  }
+
+                  final messages = docs.map((d) {
+                    final data = d.data();
+                    print('Doc data: $data'); // 디버깅
+                    final DateTime t = _safeMessageTime(d);
+                    return _Message(
+                      text: (data['message'] ?? data['text'] ?? '').toString(),
+                      time: t,
+                      isMe: data['senderId'] == me,
+                    );
+                  }).toList();
+
+                  messages.sort((a, b) => a.time.compareTo(b.time));
+
+                  if (messages.isNotEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (_) => _scrollToBottom(),
+                    );
+                  }
+
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                  ),
-                for (int i = 0; i < _messages.length; i++)
-                  MessageBubble(
-                    text: _messages[i].text,
-                    time: _messages[i].time,
-                    isMe: _messages[i].isMe,
-                    isTail: _isTail(i),
-                  ),
-              ],
+                    itemCount: messages.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFD9D9D9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _formatDateHeader(messages.first.time),
+                              style: const TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w400,
+                                fontSize: 13,
+                                color: Color(0xff333333),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                      final i = index - 1;
+                      return MessageBubble(
+                        text: messages[i].text,
+                        time: messages[i].time,
+                        isMe: messages[i].isMe,
+                        isTail: _isTail(messages, i),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-
-          // 입력창
           ChatButton(
-            onSendMessage: (text) {
+            onSendMessage: (text) async {
               final trimmed = text.trim();
               if (trimmed.isEmpty) return;
-              setState(() {
-                _messages.add(_Message(text: trimmed, time: DateTime.now(), isMe: true));
-              });
-              _scrollToBottom();
+
+              final rid = _roomId;
+              if (rid == null || rid.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('채팅방 정보가 없습니다. 다시 들어와 주세요.')),
+                );
+                return;
+              }
+
+              var uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+              var name = FirebaseAuth.instance.currentUser?.displayName ?? '익명';
+              if (uid.isEmpty) {
+                try {
+                  await FirebaseAuth.instance.signInAnonymously();
+                  uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+                  name = FirebaseAuth.instance.currentUser?.displayName ?? '익명';
+                  print('Signed in anonymously: $uid'); // 디버깅
+                } catch (e) {
+                  print('Anonymous login failed: $e'); // 디버깅
+                  if (!mounted) return;
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('로그인 오류'),
+                      content: const Text('익명 로그인에 실패했습니다. 네트워크를 확인해주세요.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('확인'),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
+              }
+              if (uid.isEmpty) return;
+
+              try {
+                print(
+                  'Sending message to room: roomId=$rid, uid=$uid, text="$trimmed"',
+                ); // 디버깅
+                await ref
+                    .read(chatRepositoryProvider)
+                    .sendMessageToRoom(
+                      roomId: rid,
+                      senderId: uid,
+                      senderName: name,
+                      text: trimmed,
+                    );
+                _scrollToBottom();
+              } catch (e) {
+                print('Send message failed: $e'); // 디버깅
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('메시지 전송에 실패했습니다.'),
+                    action: SnackBarAction(
+                      label: '재시도',
+                      onPressed: () => ref
+                          .read(chatRepositoryProvider)
+                          .sendMessageToRoom(
+                            roomId: rid,
+                            senderId: uid,
+                            senderName: name,
+                            text: trimmed,
+                          ),
+                    ),
+                  ),
+                );
+              }
             },
           ),
         ],
@@ -104,18 +286,14 @@ class _ChatingPageState extends State<ChatingPage> {
   }
 
   void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) return;
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      );
-    });
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
   }
 
-// 두 객체가 같은 "분" 단위인지 비교
-// 같은 분이면 시간 텍스트를 묶어 한 번만 보여줌
   bool _isSameMinute(DateTime a, DateTime b) {
     return a.year == b.year &&
         a.month == b.month &&
@@ -124,17 +302,38 @@ class _ChatingPageState extends State<ChatingPage> {
         a.minute == b.minute;
   }
 
-// 현재 인덱스의 말풍선이 tail인지 확인
-// 같은 사람 + 다른 사용자 연속해서 보낸 메시지 묶음의 마지막 부분에만 시간이 출력되도록 함
-  bool _isTail(int index) {
-    // 마지막 인덱스는 항상 tail처리
-    if (index == _messages.length - 1) return true;
-    final curr = _messages[index];
-    final next = _messages[index + 1];
-    // 다음 메시지와 보낸 사람이 다르면 현재 메시지가 tail
+  bool _isTail(List<_Message> list, int index) {
+    if (index == list.length - 1) return true;
+    final curr = list[index];
+    final next = list[index + 1];
     if (curr.isMe != next.isMe) return true;
-    // 다음 메시지와 분(시간)이 달라지면 묶음이 끊겨 현재 메시지가 tail 적용
     return !_isSameMinute(curr.time, next.time);
+  }
+
+  DateTime _safeMessageTime(QueryDocumentSnapshot<Map<String, dynamic>> d) {
+    final data = d.data();
+    final DateTime? created = _coerceTime(data['createdAt']);
+    if (created != null) return created;
+    if (d.metadata.hasPendingWrites) return DateTime.now();
+    final DateTime? client = _coerceTime(data['clientTime']);
+    if (client != null) return client;
+    return DateTime.fromMillisecondsSinceEpoch(1);
+  }
+
+  DateTime? _coerceTime(dynamic v) {
+    if (v == null) return null;
+    if (v is Timestamp) return v.toDate();
+    if (v is DateTime) return v;
+    if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
+    if (v is double) return DateTime.fromMillisecondsSinceEpoch(v.toInt());
+    if (v is String) {
+      try {
+        return DateTime.parse(v);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
   }
 
   String _formatDateHeader(DateTime d) {
@@ -144,14 +343,17 @@ class _ChatingPageState extends State<ChatingPage> {
     final day = d.day.toString().padLeft(2, '0');
     return '$y.$m.$day(${wd[d.weekday]})';
   }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 }
 
 class _Message {
   final String text;
   final DateTime time;
-  final bool isMe; 
-  _Message({
-    required this.text, 
-    required this.time, 
-    this.isMe = true});
+  final bool isMe;
+  _Message({required this.text, required this.time, this.isMe = true});
 }

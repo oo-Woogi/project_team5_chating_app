@@ -1,78 +1,88 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:project_team5_chating_app/data/core/user_global_view_model.dart';
+import 'package:project_team5_chating_app/model/user.dart';
+import 'package:project_team5_chating_app/pages/welcome_page/profile_edit_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
 
 // 상단 프로필
-class ProfileHeader extends StatelessWidget {
-  final String name;
-  final String aboutMe;
-  final String location;
-  final File? profileImage; // 변수 추가
-
-  const ProfileHeader({
-    super.key,
-    required this.name,
-    required this.aboutMe,
-    required this.location,
-    this.profileImage,
-  });
+class ProfileHeader extends ConsumerWidget {
+  const ProfileHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 70,
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userState = ref.watch(userGlobalProvider);
+
+    // 데이터가 없으면 안내 문구 표시
+    if (userState.userId.isEmpty) {
+      // userState.userId로 상태 확인
+      return const Text('프로필을 다시 설정해주세요.');
+    }
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfileEditPage()),
+        );
+      },
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: const Color(0xFFF24E1E),
-            backgroundImage: profileImage != null
-                ? FileImage(profileImage!)
-                : null,
-            child: profileImage == null
-                ? const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 30,
+          // ✨ 변경: 이미지 파일 대신 이미지 URL 사용
+          ClipOval(
+            child: userState.imgUrl != null
+                ? Image.network(
+                    userState.imgUrl!,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      'assets/images/icon_person_red.png',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
                   )
-                : null,
+                : Image.asset(
+                    'assets/images/icon_person_red.png',
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  name,
+                  userState.userName.isNotEmpty ? userState.userName : '이름 없음',
                   style: const TextStyle(
+                    fontFamily: 'Pretendard-semiBold',
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 14,
+                    color: Colors.black,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  aboutMe,
+                  userState.aboutMe.isNotEmpty ? userState.aboutMe : '한마디 없음',
                   style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
+                    fontFamily: 'Pretendard-semiBold',
+                    fontSize: 14,
+                    color: Color(0xFF777777),
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '나의 위치: $location',
+                  userState.address.isNotEmpty ? userState.address : '주소 없음',
                   style: const TextStyle(
+                    fontFamily: 'Pretendard-semiBold',
                     fontSize: 12,
-                    color: Colors.grey,
+                    color: Color(0xFF777777),
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
