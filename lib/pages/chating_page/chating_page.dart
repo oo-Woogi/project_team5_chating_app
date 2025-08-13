@@ -70,6 +70,7 @@ class _ChatingPageState extends ConsumerState<ChatingPage> {
         : '채팅';
 
     return Scaffold(
+      backgroundColor: Color(0xfff3f3f3),
       appBar: MyAppbar(title: appBarTitle, actions: actions),
       body: Column(
         children: [

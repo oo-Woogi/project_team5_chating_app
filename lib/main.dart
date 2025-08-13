@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project_team5_chating_app/data/core/user_global_view_model.dart';
 import 'package:project_team5_chating_app/data/repository/user_repository.dart';
 import 'package:project_team5_chating_app/pages/searching_page/searching_page.dart';
+import 'package:project_team5_chating_app/pages/welcome_page/splash_page.dart';
 import 'package:project_team5_chating_app/pages/welcome_page/welcome_page.dart';
 import 'package:project_team5_chating_app/firebase_options.dart';
 
@@ -63,14 +64,14 @@ class MyApp extends ConsumerWidget {
                   return SearchingPage();
                 } else {
                   // 프로필 없으면 웰컴페이지로 이동
-                  return const WelcomePage();
+                  return SplashPage();
                 }
               },
             );
           }
 
           // 유저 데이터 없으면 웰컴페이지 (보통 로그아웃 상태)
-          return const WelcomePage();
+          return SplashPage();
         },
       ),
     );
