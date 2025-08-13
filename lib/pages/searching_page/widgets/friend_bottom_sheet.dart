@@ -47,8 +47,6 @@ class FriendBottomSheet extends ConsumerWidget {
                   ),
                 ),
               ),
-
-            ),
             Container(
               padding: const EdgeInsets.only(left: 22, right: 12, bottom: 15, top: 10),
               width: double.infinity,
@@ -142,6 +140,7 @@ class FriendBottomSheet extends ConsumerWidget {
                   return Center(child: Text('에러가 발생했습니다: $error'));
                 },
               ),
+            ), 
             ],
           ),
         );
